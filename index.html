@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>VIORA AI Skin Scan</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&family=Cairo:wght@300;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="home" class="screen active">
+  <h1>VIORA</h1>
+  <p>AI FUTURE SKIN ANALYSIS</p>
+  <input id="username" placeholder="اسم المستخدم (فريد)">
+  <button onclick="startAIAnalysis()">ابدأ الاسكان</button>
+  <button onclick="goProgress()">تقرير التقدم</button>
+</div>
+
+<div id="scan" class="screen">
+  <video id="video" autoplay playsinline style="width:80%;border-radius:20px;border:2px solid #00eaff"></video>
+  <canvas id="overlay"></canvas>
+  <div id="scanOverlay" class="scan-overlay hidden">
+    <div class="scan-line"></div>
+    <p id="scanText" class="typewriter"></p>
+  </div>
+  <button onclick="startAIAnalysis()">بدء التحليل</button>
+</div>
+
+<div id="skincarePhase" class="screen">
+  <h2 id="phaseTitle"></h2>
+  <p id="phaseGoal"></p>
+  <div id="phaseProducts"></div>
+  <button onclick="nextPhase()">التالي</button>
+</div>
+
+<div id="result" class="screen">
+  <h2>نتيجة التحليل</h2>
+  <div id="output"></div>
+  <button onclick="saveSession()">حفظ المتابعة</button>
+</div>
+
+<div id="progress" class="screen">
+  <h2>تقرير التقدم</h2>
+  <input id="loginUser" placeholder="اسم المستخدم">
+  <button onclick="loadUser()">عرض التقرير</button>
+  <div id="report"></div>
+  <canvas id="progressChart" style="max-width:90%;margin:auto"></canvas>
+</div>
+
+<div class="card" style="background:rgba(0,234,255,.08)">
+  <h3>⭐ القواعد الذهبية</h3>
+  <ul>
+    <li>ترطيب + نوم + شرب مياه + واقي شمس</li>
+    <li>Patch Test إلزامي</li>
+    <li>لا ريتينويد بعد يوم شمس قوي</li>
+    <li>لا تفتيح قوي بدون مرحلة تهدئة</li>
+  </ul>
+</div>
+
+<audio id="scanSound" src="assets/scanSound.mp3"></audio>
+
+<script type="module" src="firebase-config.js"></script>
+<script type="module" src="main.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+</html>
+<script type="module" src="main.js"></script>
