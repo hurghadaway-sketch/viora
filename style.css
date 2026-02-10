@@ -1,108 +1,47 @@
-body{
-  margin:0;
-  font-family:'Cairo',sans-serif;
-  background:radial-gradient(circle at top,#0b1229,#050814);
-  color:#e6faff;
-  text-align:center;
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #000;
+  color: #fff;
+  text-align: center;
 }
-h1{
-  font-family:'Orbitron',sans-serif;
-  font-size:42px;
-  letter-spacing:6px;
-  text-shadow:0 0 15px #00eaff;
+
+.screen {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
-button{
-  background:linear-gradient(135deg,#00eaff,#00bcd4);
-  color:#000;
-  border:none;
-  padding:14px 28px;
-  font-size:16px;
-  border-radius:30px;
-  cursor:pointer;
-  margin:10px;
-  box-shadow:0 0 20px rgba(0,234,255,.5);
-  transition:.3s;
+
+.hidden {
+  display: none;
 }
-button:hover{
-  transform:scale(1.06);
-  box-shadow:0 0 30px rgba(0,234,255,.9);
+
+button {
+  padding: 15px 30px;
+  font-size: 18px;
+  background: #00eaff;
+  border: none;
+  border-radius: 8px;
 }
-.screen{display:none;padding:30px}
-.active{display:block}
-.card{
-  background:rgba(255,255,255,.04);
-  border:1px solid rgba(0,234,255,.4);
-  border-radius:20px;
-  padding:20px;
-  margin:20px;
-  backdrop-filter:blur(10px);
-  box-shadow:0 0 25px rgba(0,234,255,.25);
-}
-.scan-overlay{
-  position:absolute;
-  top:0; left:0;
-  width:100%; height:100%;
-  pointer-events:none;
-}
-.scan-line{
-  position:absolute;
-  left:0;
-  width:100%; height:4px;
-  background:linear-gradient(90deg,transparent,#00eaff,transparent);
-  box-shadow:0 0 20px #00eaff;
-  animation:scanMove 2s linear infinite;
-}
-@keyframes scanMove{0%{top:0}100%{top:100%}}
-.typewriter{
-  position:absolute;
-  bottom:20px;
-  width:100%;
-  text-align:center;
-  font-size:14px;
-  letter-spacing:2px;
-  color:#00eaff;
-  text-shadow:0 0 10px #00eaff;
-  border-right:2px solid #00eaff;
-  white-space:nowrap;
-  overflow:hidden;
-  animation:blink .8s infinite;
-}
-@keyframes blink{50%{border-color:transparent}}
+
 #camera {
   width: 100%;
-  max-width: 360px;
-  border-radius: 12px;
-  margin: 15px auto;
-  display: none;
+  height: 100%;
+  object-fit: cover;
 }
 
-#scanner {
-  position: relative;
-  width: 100%;
-  max-width: 360px;
-  height: 240px;
-  margin: auto;
-  overflow: hidden;
-  display: none;
-}
-
-#scanLine {
+#scan-line {
   position: absolute;
-  top: -40px;
+  top: 0;
   width: 100%;
-  height: 4px;
-  background: linear-gradient(90deg, transparent, #00bfff, transparent);
+  height: 3px;
+  background: #00eaff;
   animation: scan 2s linear infinite;
 }
 
 @keyframes scan {
-  0% { top: -40px; }
+  0% { top: 0; }
   100% { top: 100%; }
-}
-
-#result {
-  font-family: monospace;
-  white-space: pre-line;
-  color: #00eaff;
-  margin-top: 15px;
 }
