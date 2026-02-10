@@ -3,61 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VIORA - تحليل البشرة النهائي</title>
+<title>VIORA - فحص البشرة المتكامل</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <header>
-<h1>VIORA - تحليل البشرة الشامل</h1>
+<h1>VIORA - فحص البشرة المتكامل</h1>
 </header>
 
 <main>
-<h2>معلومات العميل</h2>
-<form id="clientForm">
-  <label>نوع البشرة:</label>
-  <select id="skinType" required>
-    <option value="">اختر نوع البشرة</option>
-    <option value="جافة">جافة</option>
-    <option value="دهنية">دهنية</option>
-    <option value="مختلطة">مختلطة</option>
-    <option value="عادية">عادية</option>
-  </select><br>
-
-  <label>هل لديك تصبغات؟</label>
-  <select id="pigmentationExist">
-    <option value="no">لا</option>
-    <option value="yes">نعم</option>
-  </select><br>
-  <label>أماكن التصبغات (اختياري، فاصلة بين المناطق مثل الجبهة,الخد الأيسر):</label>
-  <input type="text" id="pigmentationAreas"><br>
-
-  <label>هل لديك حبوب أو بثور؟</label>
-  <select id="acneExist">
-    <option value="no">لا</option>
-    <option value="yes">نعم</option>
-  </select><br>
-  <label>نوع الحبوب (اختياري، فاصلة بين الأنواع):</label>
-  <input type="text" id="acneTypes"><br>
-
-  <label>هل لديك هالات سوداء حول العينين؟</label>
-  <select id="darkCircles">
-    <option value="no">لا</option>
-    <option value="yes">نعم</option>
-  </select><br>
-
-  <label>هل لديك بهتان أو اسمرار عام؟</label>
-  <select id="dullness">
-    <option value="no">لا</option>
-    <option value="yes">نعم</option>
-  </select><br>
-
-  <label>هل لديك حساسية من أي كريمات (مثل Retinol أو Cretin)؟</label>
-  <input type="text" id="sensitivity" placeholder="Retinol, Cretin"><br>
-
-  <button type="button" onclick="startAnalysis()">ابدأ التحليل</button>
-</form>
-
 <h2>رفع أو التقاط صورة للوجه</h2>
 <input type="file" id="faceImage" accept="image/*">
 <br>
@@ -67,6 +22,44 @@
 <video id="video" width="300" height="300" autoplay style="display:none;"></video>
 <canvas id="canvas" style="display:none;"></canvas>
 <div id="faceMap" class="face-map" style="display:none;"></div>
+
+<div id="questions" style="display:none;">
+  <h2>الأسئلة بعد الفحص</h2>
+  <form id="clientForm">
+    <p>نوع البشرة:</p>
+    <label><input type="radio" name="skinType" value="جافة"> جافة</label>
+    <label><input type="radio" name="skinType" value="دهنية"> دهنية</label>
+    <label><input type="radio" name="skinType" value="مختلطة"> مختلطة</label>
+    <label><input type="radio" name="skinType" value="عادية"> عادية</label>
+
+    <p>هل لديك تصبغات إضافية؟</p>
+    <label><input type="radio" name="pigmentation" value="نعم"> نعم</label>
+    <label><input type="radio" name="pigmentation" value="لا"> لا</label>
+
+    <p>هل لديك حبوب إضافية؟</p>
+    <label><input type="radio" name="acne" value="نعم"> نعم</label>
+    <label><input type="radio" name="acne" value="لا"> لا</label>
+
+    <p>نوع الحبوب (إن وجدت):</p>
+    <label><input type="checkbox" name="acneType" value="حمراء"> حمراء</label>
+    <label><input type="checkbox" name="acneType" value="بيضاء"> بيضاء</label>
+    <label><input type="checkbox" name="acneType" value="سوداء"> سوداء</label>
+
+    <p>هل لديك هالات سوداء حول العينين؟</p>
+    <label><input type="radio" name="darkCircles" value="نعم"> نعم</label>
+    <label><input type="radio" name="darkCircles" value="لا"> لا</label>
+
+    <p>هل لديك بهتان أو اسمرار؟</p>
+    <label><input type="radio" name="dullness" value="نعم"> نعم</label>
+    <label><input type="radio" name="dullness" value="لا"> لا</label>
+
+    <p>هل لديك حساسية من مواد مثل Retinol أو Cretin؟</p>
+    <label><input type="radio" name="sensitivity" value="نعم"> نعم</label>
+    <label><input type="radio" name="sensitivity" value="لا"> لا</label>
+
+    <button type="button" onclick="submitQuestions()">حفظ الأسئلة وإظهار الروتين</button>
+  </form>
+</div>
 
 <div id="analysis" class="result" style="display:none;"></div>
 <button id="whatsappBtn" style="display:none;" onclick="sendWhatsApp()">إرسال الروتين إلى واتساب</button>
