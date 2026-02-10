@@ -1,28 +1,69 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Viora Scan</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Viora Skin Scan</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- شاشة البداية -->
-<div id="screen-start" class="screen">
-  <h1>Viora</h1>
+<!-- START -->
+<section id="start" class="screen">
+  <h1>VIORA</h1>
   <button onclick="startScan()">ابدأ اسكان</button>
-</div>
+</section>
 
-<!-- شاشة الاسكان -->
-<div id="screen-scan" class="screen hidden">
+<!-- SCAN -->
+<section id="scan" class="screen hidden">
   <video id="camera" autoplay playsinline muted></video>
-  <div id="scan-line"></div>
-  <p>جاري عمل اسكان للوجه...</p>
-</div>
+  <div class="scan-line"></div>
+  <p>جاري تحليل البشرة...</p>
+</section>
+
+<!-- QUESTIONS -->
+<section id="questions" class="screen hidden">
+  <h2>تحليل البشرة</h2>
+
+  <select id="skinType">
+    <option value="">نوع البشرة</option>
+    <option>دهنية</option>
+    <option>جافة</option>
+    <option>مختلطة</option>
+    <option>عادية</option>
+  </select>
+
+  <select id="acne">
+    <option value="">حب الشباب</option>
+    <option>نعم</option>
+    <option>لا</option>
+  </select>
+
+  <select id="pigmentation">
+    <option value="">التصبغات</option>
+    <option>خفيفة</option>
+    <option>متوسطة</option>
+    <option>عنيدة</option>
+  </select>
+
+  <button onclick="generateRoutine()">عرض النتيجة</button>
+</section>
+
+<!-- RESULT -->
+<section id="result" class="screen hidden">
+  <h2>نتيجة التحليل</h2>
+  <div id="routineBox"></div>
+
+  <input type="text" id="username" placeholder="اسم المستخدم">
+  <input type="file" accept="image/*" onchange="saveBefore(this)">
+  
+  <button onclick="saveUser()">حفظ المتابعة</button>
+  <button onclick="sendWhatsApp()">إرسال واتساب</button>
+  <button onclick="generatePDF()">تحميل تقرير PDF</button>
+</section>
 
 <audio id="scanSound" src="assets/scanSound.mp3"></audio>
 
-<script src="main.js"></script>
+<script type="module" src="main.js"></script>
 </body>
 </html>
