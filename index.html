@@ -49,6 +49,96 @@
   <button onclick="generateRoutine()">عرض النتيجة</button>
 </section>
 
+  <section id="scanResult" class="screen hidden">
+  <h2>نتيجة الاسكان</h2>
+
+  <div class="card">
+    <p>✔ لمعان زائد في منطقة الجبهة والأنف</p>
+    <p>✔ تصبغات خفيفة إلى متوسطة</p>
+    <p>✔ إجهاد حول العينين</p>
+    <p>✔ عدم توحد لون البشرة</p>
+  </div>
+
+  <button onclick="showRoutines()">عرض الروتينات المناسبة</button>
+  </section>
+  <section id="routines" class="screen hidden">
+  <h2>الروتين المناسب لحالتك</h2>
+
+  <div class="routine basic">
+    <h3>🟢 الروتين الأساسي</h3>
+    <p>ترطيب + نضارة</p>
+    <p>⏱ 4–6 أسابيع</p>
+    <p>💰 400–500 جنيه</p>
+    <button onclick="selectRoutine('basic')">اختيار</button>
+  </div>
+
+  <div class="routine standard">
+    <h3>🟡 الروتين المتوسّط</h3>
+    <p>علاج + تفتيح تدريجي</p>
+    <p>⏱ 6–8 أسابيع</p>
+    <p>💰 700–900 جنيه</p>
+    <button onclick="selectRoutine('standard')">اختيار</button>
+  </div>
+
+  <div class="routine super">
+    <h3>🔴 الروتين العلاجي القوي</h3>
+    <p>تفتيح عميق + تجديد</p>
+    <p>⏱ 8–12 أسبوع</p>
+    <p>💰 1200–1500 جنيه</p>
+    <button onclick="selectRoutine('super')">اختيار</button>
+  </div>
+  </section>
+ <section id="routineDetails" class="screen hidden">
+  <h2>تفاصيل الروتين</h2>
+
+  <div class="phase">
+    <h3>المرحلة الأولى: التهدئة والترطيب</h3>
+    <ul>
+      <li>Hyaluronic Acid</li>
+      <li>Panthenol</li>
+      <li>غسول لطيف</li>
+    </ul>
+    <p>⏱ أسبوع – أسبوعين</p>
+  </div>
+
+  <div class="phase">
+    <h3>المرحلة الثانية: العلاج</h3>
+    <ul>
+      <li>Vitamin C</li>
+      <li>Niacinamide</li>
+      <li>Adapalene / Retinol</li>
+    </ul>
+    <p>⏱ 4–8 أسابيع</p>
+  </div>
+
+  <div class="phase">
+    <h3>المرحلة الثالثة: الصيانة</h3>
+    <ul>
+      <li>مرطب</li>
+      <li>مضادات أكسدة</li>
+      <li>واقي شمس</li>
+    </ul>
+    <p>⏱ مستمرة</p>
+  </div>
+
+  <button onclick="goToTracking()">ابدأ المتابعة</button>
+ </section>
+ <section id="tracking" class="screen hidden">
+  <h2>متابعة التقدم</h2>
+
+  <input type="file" accept="image/*">
+  <p>📸 صورة قبل / بعد</p>
+
+  <div class="progress">
+    <p>نسبة التحسن: <strong>35%</strong></p>
+    <p>التقدم جيد – استمر على الروتين</p>
+  </div>
+
+  <button onclick="exportPDF()">تحميل تقرير PDF</button>
+  <button onclick="sendWhatsApp()">إرسال على واتساب</button>
+ </section>
+
+  
 <!-- RESULT -->
 <section id="result" class="screen hidden">
   <h2>نتيجة التحليل</h2>
