@@ -68,3 +68,41 @@ button:hover{
   animation:blink .8s infinite;
 }
 @keyframes blink{50%{border-color:transparent}}
+#camera {
+  width: 100%;
+  max-width: 360px;
+  border-radius: 12px;
+  margin: 15px auto;
+  display: none;
+}
+
+#scanner {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  height: 240px;
+  margin: auto;
+  overflow: hidden;
+  display: none;
+}
+
+#scanLine {
+  position: absolute;
+  top: -40px;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, #00bfff, transparent);
+  animation: scan 2s linear infinite;
+}
+
+@keyframes scan {
+  0% { top: -40px; }
+  100% { top: 100%; }
+}
+
+#result {
+  font-family: monospace;
+  white-space: pre-line;
+  color: #00eaff;
+  margin-top: 15px;
+}
