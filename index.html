@@ -1,78 +1,60 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-<meta charset="UTF-8">
-<title>VIORA AI Skin Scan</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&family=Cairo:wght@300;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Viora AI Skin Analysis</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div id="home" class="screen active">
-  <h1>VIORA</h1>
-  <p>AI FUTURE SKIN ANALYSIS</p>
-  <input id="username" placeholder="اسم المستخدم (فريد)">
-  <button onclick="startAIAnalysis()">ابدأ الاسكان</button>
-  <button onclick="goProgress()">تقرير التقدم</button>
+<h2>Viora – Intelligent Skin Scan</h2>
+
+<!-- شاشة البداية -->
+<div id="screen-start">
+  <button onclick="startScan()">ابدأ اسكان الوجه</button>
 </div>
 
-<div id="scan" class="screen">
-  <video id="video" autoplay playsinline style="width:80%;border-radius:20px;border:2px solid #00eaff"></video>
+<!-- شاشة الاسكان -->
+<div id="screen-scan" class="hidden">
+  <video id="camera" autoplay playsinline></video>
   <canvas id="overlay"></canvas>
-  <div id="scanOverlay" class="scan-overlay hidden">
-    <div class="scan-line"></div>
-    <p id="scanText" class="typewriter"></p>
-  </div>
-  <button onclick="startAIAnalysis()">بدء التحليل</button>
-</div>
-
-<div id="skincarePhase" class="screen">
-  <h2 id="phaseTitle"></h2>
-  <p id="phaseGoal"></p>
-  <div id="phaseProducts"></div>
-  <button onclick="nextPhase()">التالي</button>
-</div>
-
-<div id="result" class="screen">
-  <h2>نتيجة التحليل</h2>
-  <div id="output"></div>
-  <button onclick="saveSession()">حفظ المتابعة</button>
-</div>
-
-<div id="progress" class="screen">
-  <h2>تقرير التقدم</h2>
-  <input id="loginUser" placeholder="اسم المستخدم">
-  <button onclick="loadUser()">عرض التقرير</button>
-  <div id="report"></div>
-  <canvas id="progressChart" style="max-width:90%;margin:auto"></canvas>
-</div>
-
-<div class="card" style="background:rgba(0,234,255,.08)">
-  <h3>⭐ القواعد الذهبية</h3>
-  <ul>
-    <li>ترطيب + نوم + شرب مياه + واقي شمس</li>
-    <li>Patch Test إلزامي</li>
-    <li>لا ريتينويد بعد يوم شمس قوي</li>
-    <li>لا تفتيح قوي بدون مرحلة تهدئة</li>
-  </ul>
-</div>
-
-<audio id="scanSound" src="assets/scanSound.mp3"></audio>
-
-<script type="module" src="firebase-config.js"></script>
-<script type="module" src="main.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</body>
-</html>
-<script type="module" src="main.js"></script>
-<button id="startScan">ابدأ اسكان</button>
-
-<div id="scanner">
   <div id="scanLine"></div>
 </div>
 
-<video id="camera" autoplay playsinline></video>
+<!-- شاشة الأسئلة -->
+<div id="screen-questions" class="hidden">
+  <h3 id="questionText"></h3>
+  <div id="answers"></div>
+</div>
 
-<div id="result"></div>
+<!-- شاشة النتيجة -->
+<div id="screen-result" class="hidden">
+  <pre id="resultText"></pre>
+  <button onclick="sendWhatsApp()">إرسال الروتين واتساب</button>
+  <button onclick="saveProgress()">حفظ ومتابعة التقدم</button>
+</div>
 
 <audio id="scanSound" src="assets/scanSound.mp3"></audio>
+
+<script src="main.js"></script>
+</body>
+</html>
+<h3>متابعة التقدم</h3>
+<input type="file" accept="image/*" onchange="loadBefore(event)">
+<input type="file" accept="image/*" onchange="loadAfter(event)">
+<canvas id="compareCanvas" width="300" height="300"></canvas>
+<p id="progressResult"></p>
+<h3>QR Code للمتابعة</h3>
+<canvas id="qrCanvas"></canvas>
+<p>احتفظ بالكود للمتابعة لاحقًا</p>
+<button onclick="openDashboard()">لوحة التحكم</button>
+
+<div id="dashboard" class="hidden">
+  <h3>Dashboard – عملاء Viora</h3>
+  <div id="clientsList"></div>
+</div>
+<canvas id="chartCanvas" width="300" height="150"></canvas>
+
+<button onclick="generatePDF()">تقرير PDF</button>
+
