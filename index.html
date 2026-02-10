@@ -2,37 +2,23 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>Viora AI Skin Analysis</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Viora Scan</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h2>Viora – Intelligent Skin Scan</h2>
-
 <!-- شاشة البداية -->
-<div id="screen-start">
-  <button onclick="startScan()">ابدأ اسكان الوجه</button>
+<div id="screen-start" class="screen">
+  <h1>Viora</h1>
+  <button onclick="startScan()">ابدأ اسكان</button>
 </div>
 
 <!-- شاشة الاسكان -->
-<div id="screen-scan" class="hidden">
-  <video id="camera" autoplay playsinline></video>
-  <canvas id="overlay"></canvas>
-  <div id="scanLine"></div>
-</div>
-
-<!-- شاشة الأسئلة -->
-<div id="screen-questions" class="hidden">
-  <h3 id="questionText"></h3>
-  <div id="answers"></div>
-</div>
-
-<!-- شاشة النتيجة -->
-<div id="screen-result" class="hidden">
-  <pre id="resultText"></pre>
-  <button onclick="sendWhatsApp()">إرسال الروتين واتساب</button>
-  <button onclick="saveProgress()">حفظ ومتابعة التقدم</button>
+<div id="screen-scan" class="screen hidden">
+  <video id="camera" autoplay playsinline muted></video>
+  <div id="scan-line"></div>
+  <p>جاري عمل اسكان للوجه...</p>
 </div>
 
 <audio id="scanSound" src="assets/scanSound.mp3"></audio>
@@ -40,21 +26,3 @@
 <script src="main.js"></script>
 </body>
 </html>
-<h3>متابعة التقدم</h3>
-<input type="file" accept="image/*" onchange="loadBefore(event)">
-<input type="file" accept="image/*" onchange="loadAfter(event)">
-<canvas id="compareCanvas" width="300" height="300"></canvas>
-<p id="progressResult"></p>
-<h3>QR Code للمتابعة</h3>
-<canvas id="qrCanvas"></canvas>
-<p>احتفظ بالكود للمتابعة لاحقًا</p>
-<button onclick="openDashboard()">لوحة التحكم</button>
-
-<div id="dashboard" class="hidden">
-  <h3>Dashboard – عملاء Viora</h3>
-  <div id="clientsList"></div>
-</div>
-<canvas id="chartCanvas" width="300" height="150"></canvas>
-
-<button onclick="generatePDF()">تقرير PDF</button>
-
