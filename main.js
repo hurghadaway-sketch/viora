@@ -28,25 +28,8 @@ const routines = {
 const faceZones = ["الجبهة","الأنف","الذقن","الخد الأيمن","الخد الأيسر","حول العين"];
 const zoneColors = {"جفاف":"blue","دهون":"red","تصبغات":"yellow","حبوب":"orange","هالات":"purple","بهتان":"gray","اسمرار":"brown"};
 
-// ============================
-// بيانات العميل
-// ============================
-let clientData = {};
-
-// ============================
-// جمع معلومات العميل من النموذج
-// ============================
-function startAnalysis(){
-  clientData.skinType=document.getElementById('skinType').value;
-  clientData.pigmentationExist=document.getElementById('pigmentationExist').value;
-  clientData.pigmentationAreas=document.getElementById('pigmentationAreas').value.split(",").map(s=>s.trim());
-  clientData.acneExist=document.getElementById('acneExist').value;
-  clientData.acneTypes=document.getElementById('acneTypes').value.split(",").map(s=>s.trim());
-  clientData.darkCircles=document.getElementById('darkCircles').value==="yes";
-  clientData.dullness=document.getElementById('dullness').value==="yes";
-  clientData.sensitivity=document.getElementById('sensitivity').value.split(",").map(s=>s.trim());
-  alert("تم حفظ معلومات العميل، يمكنك الآن رفع أو التقاط الصورة للوجه.");
-}
+let aiResults = {}; // نتائج الذكاء الاصطناعي
+let clientData = {}; // إجابات العميل
 
 // ============================
 // تحليل الصورة
@@ -58,12 +41,10 @@ function analyzeImage() {
   const reader = new FileReader();
   reader.onload = function(e){ img.src = e.target.result; }
   reader.readAsDataURL(file);
-  img.onload = function(){ processFaceImage(img); }
+  img.onload = function(){ processFaceAI(img); }
 }
 
-// ============================
 // الكاميرا
-// ============================
 function startCamera() {
   const video = document.getElementById('video');
   video.style.display = 'block';
@@ -85,53 +66,62 @@ function captureFromVideo(video){
   ctx.drawImage(video,0,0,300,300);
   const img=new Image();
   img.src=canvas.toDataURL();
-  img.onload=function(){ processFaceImage(img); }
+  img.onload=function(){ processFaceAI(img); }
 }
 
 // ============================
-// معالجة الوجه + دمج معلومات العميل
+// معالجة الوجه + الذكاء الاصطناعي (محاكاة)
 // ============================
-function processFaceImage(img){
-  const canvas=document.getElementById('canvas');
-  const ctx=canvas.getContext('2d');
-  canvas.width=300; canvas.height=300;
-  ctx.drawImage(img,0,0,300,300);
-  const data=ctx.getImageData(0,0,300,300).data;
+function processFaceAI(img){
+  // المحاكاة: لكل منطقة نختار مشاكل عشوائية بسيطة
+  aiResults={};
+  faceZones.forEach(z=>{
+    aiResults[z]={problem:[]};
+    const rand=Math.random();
+    if(rand<0.3) aiResults[z].problem.push("جفاف");
+    if(rand>0.7) aiResults[z].problem.push("دهون");
+    if(rand>0.4 && rand<0.6) aiResults[z].problem.push("اسمرار");
+  });
+  // إظهار الأسئلة بعد الفحص
+  document.getElementById('questions').style.display='block';
+  alert("تم الفحص الآلي، يرجى الإجابة على الأسئلة لتحديث التحليل النهائي.");
+}
 
-  const zonesData={};
-  faceZones.forEach(z=>zonesData[z]={problem:[]});
+// ============================
+// جمع إجابات العميل بعد الأسئلة
+// ============================
+function submitQuestions(){
+  const form=document.getElementById('clientForm');
+  clientData.skinType=form.skinType.value;
+  clientData.pigmentation=form.pigmentation.value;
+  clientData.acne=form.acne.value;
+  clientData.acneTypes=[...form.acneType].filter(c=>c.checked).map(c=>c.value);
+  clientData.darkCircles=form.darkCircles.value;
+  clientData.dullness=form.dullness.value;
+  clientData.sensitivity=form.sensitivity.value;
 
-  // دمج معلومات العميل
-  if(clientData.pigmentationExist==="yes"){
-    clientData.pigmentationAreas.forEach(a=>{if(faceZones.includes(a)) zonesData[a].problem.push("تصبغات");});
-  }
-  if(clientData.acneExist==="yes"){
-    clientData.acneTypes.forEach(a=>{
-      faceZones.forEach(z=>zonesData[z].problem.push("حبوب"));
+  displayResultsFinal();
+}
+
+// ============================
+// دمج النتائج وعرض الروتين النهائي
+// ============================
+function displayResultsFinal(){
+  const zonesData=JSON.parse(JSON.stringify(aiResults)); // نسخ النتائج
+  // دمج أسئلة العميل
+  if(clientData.pigmentation==="نعم"){ faceZones.forEach(z=>zonesData[z].problem.push("تصبغات")); }
+  if(clientData.acne==="نعم"){ 
+    faceZones.forEach(z=>{
+      if(clientData.acneTypes.length>0) zonesData[z].problem.push(...clientData.acneTypes.map(t=> "حبوب-"+t));
+      else zonesData[z].problem.push("حبوب");
     });
   }
-  if(clientData.darkCircles) zonesData["حول العين"].problem.push("هالات");
-  if(clientData.dullness) faceZones.forEach(z=>zonesData[z].problem.push("بهتان"));
+  if(clientData.darkCircles==="نعم") zonesData["حول العين"].problem.push("هالات");
+  if(clientData.dullness==="نعم") faceZones.forEach(z=>zonesData[z].problem.push("بهتان"));
 
-  // إضافة التحليل من الصورة (محاكاة بسيطة)
-  faceZones.forEach(z=>{
-    const avgB=Math.random()*255; // محاكاة السطوع
-    if(avgB<60) zonesData[z].problem.push("جفاف");
-    if(avgB>200) zonesData[z].problem.push("دهون");
-    if(avgB>80 && avgB<120) zonesData[z].problem.push("اسمرار");
-  });
-
-  displayResults(zonesData);
-}
-
-// ============================
-// عرض النتائج + الروتين
-// ============================
-function displayResults(zonesData){
+  // عرض النتائج
   const faceMap=document.getElementById('faceMap');
-  faceMap.innerHTML="";
-  faceMap.style.display="block";
-
+  faceMap.innerHTML=""; faceMap.style.display="block";
   const zoneCoords={
     "الجبهة":[100,20,100],
     "الأنف":[130,120,40],
@@ -140,7 +130,6 @@ function displayResults(zonesData){
     "الخد الأيسر":[60,120,50],
     "حول العين":[120,160,60]
   };
-
   faceZones.forEach(z=>{
     zonesData[z].problem.forEach(prob=>{
       const div=document.createElement('div');
@@ -149,22 +138,22 @@ function displayResults(zonesData){
       div.style.top=(zoneCoords[z][1]-zoneCoords[z][2]/2)+"px";
       div.style.width=zoneCoords[z][2]+"px";
       div.style.height=zoneCoords[z][2]+"px";
-      div.style.backgroundColor=zoneColors[prob];
+      const color=zoneColors[prob.split("-")[0]] || "gray";
+      div.style.backgroundColor=color;
       faceMap.appendChild(div);
     });
   });
+
+  // اختيار روتين
+  let selectedRoutine="متوسط";
+  const r=routines[selectedRoutine];
+  const filteredActive=r.active.filter(a=>clientData.sensitivity!=="نعم" || !["Retinol","Cretin"].includes(a));
 
   let html=`<h3>نوع البشرة العام: ${clientData.skinType}</h3>`;
   html+=`<p><strong>المشاكل حسب المنطقة:</strong></p>`;
   faceZones.forEach(z=>{
     html+=`<p><strong>${z}:</strong> ${zonesData[z].problem.length>0?zonesData[z].problem.join(", "):"لا توجد مشاكل واضحة"}</p>`;
   });
-
-  // اختيار روتين حسب الحساسية
-  let selectedRoutine="متوسط";
-  const r=routines[selectedRoutine];
-  const filteredActive=r.active.filter(a=>!clientData.sensitivity.includes(a));
-
   html+=`<h3>الروتين المقترح</h3>`;
   html+=`<div class="routine"><h4>${selectedRoutine} - ${r.description}</h4>`;
   html+=`<p><strong>المواد الفعالة:</strong> ${filteredActive.join(", ")}</p>`;
@@ -176,8 +165,7 @@ function displayResults(zonesData){
   html+=`</ul></div>`;
 
   const analysisDiv=document.getElementById('analysis');
-  analysisDiv.innerHTML=html;
-  analysisDiv.style.display='block';
+  analysisDiv.innerHTML=html; analysisDiv.style.display='block';
   document.getElementById('whatsappBtn').style.display='block';
 }
 
