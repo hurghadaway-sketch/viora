@@ -250,4 +250,68 @@ const scanSound = new Audio("./assets/scanSound.mp3");
 scanSound.volume = 0.7;
 scanSound.currentTime = 0;
 scanSound.play().catch(() => {});
+const startBtn = document.getElementById("startScan");
+const camera = document.getElementById("camera");
+const scanner = document.getElementById("scanner");
+const resultBox = document.getElementById("result");
+const sound = document.getElementById("scanSound");
 
+function playScanSound() {
+  sound.currentTime = 0;
+  sound.play();
+}
+
+function typeWriter(text, speed = 40) {
+  resultBox.innerHTML = "";
+  let i = 0;
+  const interval = setInterval(() => {
+    resultBox.innerHTML += text.charAt(i);
+    i++;
+    if (i >= text.length) clearInterval(interval);
+  }, speed);
+}
+
+async function startCamera() {
+  const stream = await navigator.mediaDevices.getUserMedia({
+    video: { facingMode: "user" }
+  });
+  camera.srcObject = stream;
+  camera.style.display = "block";
+}
+
+function fakeAIAnalysis() {
+  return `
+جاري تحليل البشرة...
+✔ نوع البشرة: مختلطة مائلة للدهنية
+✔ مستوى الترطيب: متوسط
+✔ المسام: واضحة بمنطقة T-Zone
+✔ التصبغات: خفيفة إلى متوسطة
+✔ الهالات: موجودة (إجهاد / قلة نوم)
+
+التوصية:
+• روتين تهدئة أول 7 أيام
+• ثم علاج تدريجي
+• واقي شمس إلزامي
+
+جاهز للمتابعة 📊
+`;
+}
+
+startBtn.addEventListener("click", async () => {
+  try {
+    await startCamera();
+
+    scanner.style.display = "block";
+    playScanSound();
+
+    setTimeout(() => {
+      scanner.style.display = "none";
+      const report = fakeAIAnalysis();
+      typeWriter(report);
+    }, 5000);
+
+  } catch (e) {
+    alert("يرجى السماح للكاميرا وتشغيل الموقع عبر HTTPS");
+    console.error(e);
+  }
+});
