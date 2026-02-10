@@ -1,317 +1,304 @@
-import { db, storage } from './firebase-config.js';
-import { doc, getDoc, setDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+let userProfile = {
+  skinType: "",
+  sensitivity: "",
+  acne: "",
+  pigmentation: ""
+};
 
-// ---------------- UI Helpers ----------------
-function show(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
+const questions = [
+  {
+    q: "ما نوع بشرتك؟",
+    a: ["دهنية","جافة","مختلطة","حساسة"],
+    k: "skinType"
+  },
+  {
+    q: "هل بشرتك تتحسس بسرعة؟",
+    a: ["نعم","لا"],
+    k: "sensitivity"
+  },
+  {
+    q: "هل لديك حبوب ملتهبة؟",
+    a: ["نعم","خفيفة","لا"],
+    k: "acne"
+  },
+  {
+    q: "درجة التصبغات؟",
+    a: ["خفيفة","متوسطة","عنيدة"],
+    k: "pigmentation"
+  }
+];
 
-// ---------------- User Handling ----------------
-async function checkUsername(username){
-  if(!username) return true;
-  const refUser = doc(db,"users",username);
-  const snap = await getDoc(refUser);
-  return snap.exists();
-}
+let qIndex = 0;
 
-async function createUser(username){
-  const refUser = doc(db,"users",username);
-  await setDoc(refUser,{createdAt:new Date(),sessions:[]});
-}
+async function startScan(){
+  document.getElementById("screen-start").classList.add("hidden");
+  document.getElementById("screen-scan").classList.remove("hidden");
 
-// ---------------- Camera ----------------
-let video = document.getElementById("video");
-let cameraActive=false;
-async function startCamera(){
-  if(cameraActive) return;
-  const stream = await navigator.mediaDevices.getUserMedia({video:true});
+  const video = document.getElementById("camera");
+  const stream = await navigator.mediaDevices.getUserMedia({ video:true });
   video.srcObject = stream;
-  cameraActive=true;
-}
 
-// ---------------- Typewriter + Loader ----------------
-const scanMessages=[
-  "INITIALIZING AI CORE...",
-  "DETECTING FACIAL LANDMARKS...",
-  "ANALYZING SKIN TEXTURE...",
-  "CALCULATING SKIN SCORE...",
-  "FINALIZING RESULTS..."
-];
-let textIndex=0,charIndex=0,scanText=document.getElementById("scanText");
-function startTypewriter(){
-  scanText.innerHTML=""; textIndex=0; charIndex=0;
-  typeNextChar();
-}
-function typeNextChar(){
-  if(textIndex >= scanMessages.length) return;
-  let current=scanMessages[textIndex];
-  if(charIndex < current.length){
-    scanText.innerHTML += current.charAt(charIndex);
-    charIndex++;
-    setTimeout(typeNextChar,50);
-  }else{
-    setTimeout(()=>{
-      charIndex=0; scanText.innerHTML="";
-      textIndex++; typeNextChar();
-    },800);
-  }
-}
+  document.getElementById("scanSound").play();
 
-// ---------------- Sound + Haptic ----------------
-function playScanEffects(){
-  const sound=document.getElementById("scanSound");
-  sound.currentTime=0;
-  sound.play().catch(()=>{});
-  if(navigator.vibrate) navigator.vibrate([100,50,100,50,100]);
-}
-
-// ---------------- Glitch ----------------
-function endScan(){
-  scanText.classList.add("glitch");
-  scanText.innerHTML="FINALIZING DATA...";
   setTimeout(()=>{
-    scanText.classList.remove("glitch");
-    show("skincarePhase");
-    currentPhaseIndex=0;
-    showPhase(currentPhaseIndex);
-  },1500);
+    document.getElementById("screen-scan").classList.add("hidden");
+    startQuestions();
+  },5000);
 }
 
-// ---------------- Start AI Scan ----------------
-export function startAIAnalysis(){
-  const user = document.getElementById("username").value.trim();
-  if(!user){ alert("ادخل اسم المستخدم"); return;}
-  checkUsername(user).then(exists=>{
-    if(exists){ alert("اسم المستخدم مستخدم من قبل"); return;}
-    createUser(user).then(()=>{
-      show('scan');
-      startCamera();
-      document.getElementById("scanOverlay").classList.remove("hidden");
-      playScanEffects();
-      startTypewriter();
-      setTimeout(()=>{
-        document.getElementById("scanOverlay").classList.add("hidden");
-        endScan();
-      },6000);
-    });
+function startQuestions(){
+  document.getElementById("screen-questions").classList.remove("hidden");
+  showQuestion();
+}
+
+function showQuestion(){
+  const q = questions[qIndex];
+  document.getElementById("questionText").innerText = q.q;
+  const answersDiv = document.getElementById("answers");
+  answersDiv.innerHTML = "";
+
+  q.a.forEach(ans=>{
+    const btn = document.createElement("button");
+    btn.innerText = ans;
+    btn.onclick = ()=> {
+      userProfile[q.k] = ans;
+      qIndex++;
+      qIndex < questions.length ? showQuestion() : showResult();
+    };
+    answersDiv.appendChild(btn);
   });
 }
 
-// ---------------- Skincare Phases ----------------
-const skincarePhases = [
-  {
-    title: "المرحلة الأولى: الترطيب والتهدئة",
-    duration: "7 أيام",
-    goal: "إصلاح الحاجز الجلدي، تقليل الالتهاب، تجهيز البشرة لتحمّل العلاجات",
-    products: {
-      serum: [
-        {name:"Nano Treat HA & V.C", notes:"أقوى نضارة"},
-        {name:"Kolagra HA & V.C", notes:"متوازن"},
-        {name:"Eva HA & V.C", notes:"اقتصادي"}
-      ],
-      moisturizer: [
-        {name:"Panthenol Cream", notes:"B5"}
-      ],
-      cleanser: [
-        {name:"Eva Face Wash", notes:"عادية / جافة"},
-        {name:"Garnier SkinActive Vit C", notes:"بهتان"},
-        {name:"Kolagra Cleanser", notes:"تصبغات"},
-        {name:"Starville Gentle", notes:"حساسة"}
-      ],
-      sunscreen: [
-        {name:"Infinity Whitening SPF50+", notes:"تفتيح + حماية"},
-        {name:"Nano Treat Sunscreen", notes:"حماية عالية"},
-        {name:"Cleo Sunscreen", notes:"لطيف"}
-      ],
-      restrictions:["ممنوع أي ريتينويد أو تقشير"]
-    }
-  },
-  {
-    title: "المرحلة الثانية: علاج حب الشباب + البقع + الهالات",
-    duration: "4–6 أسابيع",
-    goal: "السيطرة على الحبوب، منع آثار جديدة، بدء تجديد الخلايا",
-    products: {
-      activeIngredients:["Vitamin C","Niacinamide 5–10%","Retinol","Adapalene","Tretinoin"],
-      acne: [
-        {name:"Clindamycin + Benzoyl Peroxide", notes:"قتل البكتيريا"},
-        {name:"Adapalene / Adagel", notes:"تنظيم المسام"}
-      ],
-      scars: [
-        {name:"Acretin", notes:"Tretinoin"}
-      ],
-      eye: [
-        {name:"Nano Treat 24K Gold Serum", notes:"Hyaluronic + Gold"},
-        {name:"Dear Eye Cream", notes:"Caffeine + Vit C"},
-        {name:"Eva Collagen Eye Cream", notes:"Collagen"},
-        {name:"Kolagra Eye Cream", notes:"Niacinamide"}
-      ],
-      restrictions:["لا Adapalene + Acretin في نفس الليلة"]
-    }
-  },
-  {
-    title: "المرحلة الثالثة: التفتيح الشامل",
-    duration: "4–8 أسابيع",
-    goal: "توحيد اللون، تقليل التصبغات العنيدة، نضارة عامة",
-    products: {
-      activeIngredients:["Vitamin C","Niacinamide 5–10%","Alpha Arbutin","Retinol خفيف/ليلي"],
-      whitening: [
-        {name:"Nano Treat Whitening", notes:"قوي"},
-        {name:"Dear Whitening", notes:"متوسط"},
-        {name:"Natavis Retinol", notes:"تفتيح + تجديد"},
-        {name:"Eva Collagen Whitening Cream", notes:"نضارة"},
-        {name:"Kolagra Whitening Gel", notes:"مناسب الدهني"}
-      ]
-    }
-  }
-];
+function showResult(){
+  document.getElementById("screen-questions").classList.add("hidden");
+  document.getElementById("screen-result").classList.remove("hidden");
 
-let currentPhaseIndex=0;
+  let routine = "روتين اقتصادي";
+  if(userProfile.pigmentation === "عنيدة") routine = "روتين سوبر";
+  else if(userProfile.acne !== "لا") routine = "روتين متوسط";
 
-export function showPhase(index){
-  const phase = skincarePhases[index];
-  document.getElementById("phaseTitle").innerText = phase.title;
-  document.getElementById("phaseGoal").innerText = phase.goal;
-  const container = document.getElementById("phaseProducts");
-  container.innerHTML="";
+  const text = `
+نوع البشرة: ${userProfile.skinType}
+حساسية: ${userProfile.sensitivity}
+حبوب: ${userProfile.acne}
+تصبغات: ${userProfile.pigmentation}
 
-  for(let category in phase.products){
-    if(category==="restrictions" || category==="activeIngredients") continue;
-    const list = phase.products[category];
-    container.innerHTML += `<h4>${category.toUpperCase()}</h4>`;
-    list.forEach(p=>{
-      container.innerHTML += `<label><input type="radio" name="${category}"> ${p.name} (${p.notes})</label><br>`;
-    });
-  }
+الروتين المقترح: ${routine}
 
-  if(phase.products.restrictions){
-    container.innerHTML += `<p style="color:#ff5252"><b>تنبيه:</b> ${phase.products.restrictions.join(", ")}</p>`;
-  }
-}
-
-export function nextPhase(){
-  if(currentPhaseIndex < skincarePhases.length-1){
-    currentPhaseIndex++;
-    showPhase(currentPhaseIndex);
-  }else{
-    alert("لقد أكملت كل المراحل!");
-    show("result");
-  }
-}
-
-// ---------------- Progress + Firebase ----------------
-export async function saveSession(){
-  const d = {
-    user: document.getElementById("username").value,
-    phase: currentPhaseIndex,
-    date: new Date().toLocaleDateString()
-  };
-  const refUser = doc(db,"users",d.user);
-  await updateDoc(refUser,{sessions:arrayUnion(d)});
-  alert("تم حفظ البيانات");
-}
-
-export async function goProgress(){ show("progress"); }
-
-export async function loadUser(){
-  const name=document.getElementById("loginUser").value;
-  const refUser = doc(db,"users",name);
-  const snap = await getDoc(refUser);
-  if(!snap.exists()){ document.getElementById("report").innerText="لا توجد بيانات"; return; }
-  const d = snap.data();
-  document.getElementById("report").innerHTML=`<div class="card">
-  <b>آخر مرحلة:</b> ${d.sessions[d.sessions.length-1]?.phase || "-"}<br>
-  <b>تاريخ آخر جلسة:</b> ${d.sessions[d.sessions.length-1]?.date || "-"}
-  </div>`;
-
-  const ctx = document.getElementById('progressChart').getContext('2d');
-  const labels = d.sessions.map((s,i)=>`جلسة ${i+1}`);
-  const dataPoints = d.sessions.map((s,i)=>i+1);
-  new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'تقدم البشرة',data:dataPoints,borderColor:'#00eaff',tension:0.3}]},options:{responsive:true}});
-}
-
-// ---------------- Before/After Image ----------------
-export async function uploadImage(file,username,type){
-  const imgRef = ref(storage,`${username}/${type}_${Date.now()}.jpg`);
-  await uploadBytes(imgRef,file);
-  return await getDownloadURL(imgRef);
-}
-window.startAIAnalysis = async function(){
-  const username = document.getElementById("username").value;
-  if(!username){
-    alert("ادخل اسم المستخدم");
-    return;
-  }
-  show("scan");
-  await startCamera();
-}
-const scanSound = new Audio("./assets/scanSound.mp3");
-scanSound.volume = 0.7;
-scanSound.currentTime = 0;
-scanSound.play().catch(() => {});
-const startBtn = document.getElementById("startScan");
-const camera = document.getElementById("camera");
-const scanner = document.getElementById("scanner");
-const resultBox = document.getElementById("result");
-const sound = document.getElementById("scanSound");
-
-function playScanSound() {
-  sound.currentTime = 0;
-  sound.play();
-}
-
-function typeWriter(text, speed = 40) {
-  resultBox.innerHTML = "";
-  let i = 0;
-  const interval = setInterval(() => {
-    resultBox.innerHTML += text.charAt(i);
-    i++;
-    if (i >= text.length) clearInterval(interval);
-  }, speed);
-}
-
-async function startCamera() {
-  const stream = await navigator.mediaDevices.getUserMedia({
-    video: { facingMode: "user" }
-  });
-  camera.srcObject = stream;
-  camera.style.display = "block";
-}
-
-function fakeAIAnalysis() {
-  return `
-جاري تحليل البشرة...
-✔ نوع البشرة: مختلطة مائلة للدهنية
-✔ مستوى الترطيب: متوسط
-✔ المسام: واضحة بمنطقة T-Zone
-✔ التصبغات: خفيفة إلى متوسطة
-✔ الهالات: موجودة (إجهاد / قلة نوم)
-
-التوصية:
-• روتين تهدئة أول 7 أيام
-• ثم علاج تدريجي
-• واقي شمس إلزامي
-
-جاهز للمتابعة 📊
+التحسن المتوقع:
+2–4 أسابيع مع الالتزام
 `;
+
+  document.getElementById("resultText").innerText = text;
 }
 
-startBtn.addEventListener("click", async () => {
-  try {
-    await startCamera();
+function sendWhatsApp(){
+  const msg = encodeURIComponent(document.getElementById("resultText").innerText);
+  window.open("https://wa.me/201XXXXXXXXX?text="+msg,"_blank");
+}
+let beforeImg, afterImg;
 
-    scanner.style.display = "block";
-    playScanSound();
+function loadBefore(e){
+  beforeImg = new Image();
+  beforeImg.src = URL.createObjectURL(e.target.files[0]);
+}
 
-    setTimeout(() => {
-      scanner.style.display = "none";
-      const report = fakeAIAnalysis();
-      typeWriter(report);
-    }, 5000);
+function loadAfter(e){
+  afterImg = new Image();
+  afterImg.src = URL.createObjectURL(e.target.files[0]);
+  afterImg.onload = compareImages;
+}
 
-  } catch (e) {
-    alert("يرجى السماح للكاميرا وتشغيل الموقع عبر HTTPS");
-    console.error(e);
+function compareImages(){
+  const canvas = document.getElementById("compareCanvas");
+  const ctx = canvas.getContext("2d");
+
+  ctx.drawImage(beforeImg,0,0,300,300);
+  const beforeData = ctx.getImageData(0,0,300,300).data;
+
+  ctx.drawImage(afterImg,0,0,300,300);
+  const afterData = ctx.getImageData(0,0,300,300).data;
+
+  let beforeSum = 0, afterSum = 0;
+
+  for(let i=0;i<beforeData.length;i+=4){
+    beforeSum += beforeData[i];   // Red channel
+    afterSum += afterData[i];
   }
-});
+
+  const improvement = Math.round(((afterSum - beforeSum) / beforeSum) * 100);
+
+  document.getElementById("progressResult").innerText =
+   `نسبة التحسن التقريبية: ${improvement}%`;
+        }
+function saveProgress(){
+  localStorage.setItem("vioraUser", JSON.stringify(userProfile));
+  alert("تم حفظ حالتك للمتابعة");
+}
+function medicalProgressScore(){
+  let score = 0;
+
+  if(userProfile.acne === "لا") score += 30;
+  if(userProfile.pigmentation !== "عنيدة") score += 30;
+  if(userProfile.sensitivity === "لا") score += 20;
+
+  return score;
+              }
+const medicalScore = medicalProgressScore();
+resultText.innerText += `\nالتقييم الطبي للتحسن: ${medicalScore}%`;
+function chooseActiveIngredients(){
+  let actives = [];
+
+  if(userProfile.acne !== "لا"){
+    actives.push("Adapalene");
+  }
+
+  if(userProfile.pigmentation === "عنيدة"){
+    actives.push("Alpha Arbutin","Vitamin C");
+  }
+
+  if(userProfile.sensitivity === "نعم"){
+    actives = actives.filter(a => a !== "Retinol");
+  }
+
+  return actives;
+}
+
+const productsDB = {
+  "Adapalene": ["Differin Gel","Adapco"],
+  "Vitamin C": ["Nano Treat VC","Eva VC"],
+  "Alpha Arbutin": ["Dear Whitening","Kolagra Whitening"],
+  "Retinol": ["Acretin","Natavis Retinol"]
+};
+
+function generateProducts(){
+  const actives = chooseActiveIngredients();
+  let output = "\nالمنتجات المقترحة:\n";
+
+  actives.forEach(a=>{
+    output += `- ${productsDB[a].join(" / ")}\n`;
+  });
+
+  return output;
+}
+resultText.innerText += generateProducts();
+
+function generateQR(username){
+  const qr = document.getElementById("qrCanvas");
+  const ctx = qr.getContext("2d");
+  const size = 200;
+  qr.width = qr.height = size;
+
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(0,0,size,size);
+
+  ctx.fillStyle = "#000";
+  const data = btoa(`https://hurghadaway-sketch.github.io/?user=${username}`);
+
+  let x = 10, y = 10;
+  for(let i=0;i<data.length;i++){
+    if(data.charCodeAt(i) % 2 === 0){
+      ctx.fillRect(x,y,6,6);
+    }
+    x += 8;
+    if(x > size - 10){
+      x = 10;
+      y += 8;
+    }
+  }
+}
+
+function saveProgress(){
+  const username = prompt("اكتب اسم المستخدم (غير مكرر)");
+  if(!username) return;
+
+  userProfile.username = username;
+  userProfile.startDate = new Date().toISOString();
+
+  localStorage.setItem("viora_"+username, JSON.stringify(userProfile));
+
+  generateQR(username);
+  alert("تم حفظ الحالة وإنشاء QR");
+}
+
+window.onload = ()=>{
+  const params = new URLSearchParams(window.location.search);
+  const user = params.get("user");
+
+  if(user){
+    const data = localStorage.getItem("viora_"+user);
+    if(data){
+      userProfile = JSON.parse(data);
+      showResult();
+    } else {
+      alert("لا توجد بيانات لهذا المستخدم");
+    }
+  }
+};
+function openDashboard(){
+  document.getElementById("dashboard").classList.remove("hidden");
+  const list = document.getElementById("clientsList");
+  list.innerHTML = "";
+
+  for(let key in localStorage){
+    if(key.startsWith("viora_")){
+      const data = JSON.parse(localStorage.getItem(key));
+      list.innerHTML += `
+        <div style="border:1px solid #00eaff;padding:8px;margin:6px">
+          👤 ${data.username}<br>
+          🗓️ ${data.startDate}<br>
+          🧴 ${data.skinType} – ${data.pigmentation}
+        </div>`;
+    }
+  }
+}
+
+function drawProgressChart(before, after){
+  const c = document.getElementById("chartCanvas");
+  const ctx = c.getContext("2d");
+
+  ctx.clearRect(0,0,c.width,c.height);
+
+  ctx.fillStyle="#00eaff";
+  ctx.fillRect(50,150-before,50,before);
+
+  ctx.fillStyle="#00ff88";
+  ctx.fillRect(150,150-after,50,after);
+
+  ctx.fillStyle="#fff";
+  ctx.fillText("قبل",60,145);
+  ctx.fillText("بعد",160,145);
+}
+
+drawProgressChart(60, 90); // مثال تحسن
+
+
+function generatePDF(){
+  const text = document.getElementById("resultText").innerText;
+  const blob = new Blob([text], {type: "application/pdf"});
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "Viora_Report.pdf";
+  link.click();
+}
+function generateQR(username){
+  const qr = document.getElementById("qrCanvas");
+  const ctx = qr.getContext("2d");
+  const size = 200;
+  qr.width = qr.height = size;
+
+  ctx.fillStyle="#fff";
+  ctx.fillRect(0,0,size,size);
+
+  const link = `https://wa.me/201063994139?text=متابعة حالة ${username}`;
+  const data = btoa(link);
+
+  ctx.fillStyle="#000";
+  let x=10,y=10;
+  for(let i=0;i<data.length;i++){
+    if(data.charCodeAt(i)%2===0) ctx.fillRect(x,y,6,6);
+    x+=8;
+    if(x>size-10){x=10;y+=8;}
+  }
+}
+
