@@ -83,3 +83,16 @@ function hideAll(){
   document.querySelectorAll(".screen").forEach(s=>s.classList.add("hidden"));
 }
 function show(id){ document.getElementById(id).classList.remove("hidden"); }
+
+function showRoutines() {
+  hideAll(); show("routines");
+}
+
+function selectRoutine(type) {
+  window.selectedRoutine = type;
+  hideAll(); show("routineDetails");
+}
+
+function goToTracking() {
+  hideAll(); show("tracking");
+}
