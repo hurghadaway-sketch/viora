@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VIORA - خريطة الوجه التفاعلية</title>
+<title>VIORA - تحليل البشرة</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <header>
-<h1>VIORA - خريطة الوجه التفاعلية</h1>
+<h1>VIORA - تحليل البشرة الشامل</h1>
 </header>
 
 <main>
@@ -17,13 +17,14 @@
 <input type="file" id="faceImage" accept="image/*">
 <br>
 <button onclick="analyzeImage()">تحليل من صورة</button>
-<button onclick="startCamera()">تحليل من الكاميرا</button>
+<button onclick="startCamera()">التقاط وتحليل من الكاميرا</button>
 
 <video id="video" width="300" height="300" autoplay style="display:none;"></video>
 <canvas id="canvas" style="display:none;"></canvas>
 <div id="faceMap" class="face-map" style="display:none;"></div>
 
 <div id="analysis" class="result" style="display:none;"></div>
+<button id="whatsappBtn" style="display:none;" onclick="sendWhatsApp()">إرسال الروتين إلى واتساب</button>
 </main>
 
 <script src="main.js"></script>
