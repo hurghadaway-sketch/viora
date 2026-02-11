@@ -2,7 +2,7 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>VIORA – AI Skin Scan</title>
+  <title>VIORA – AI Skin Analysis</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -15,17 +15,17 @@
     <h1>VIORA</h1>
     <p>AI Skin Scan & Smart Routine</p>
     <input id="username" placeholder="Username / اسم المستخدم">
-    <button onclick="goToScan()">ابدأ الاسكان</button>
+    <button onclick="goToScan()">Start Scan / ابدأ الاسكان</button>
   </section>
 
   <!-- SCAN -->
   <section id="scan" class="screen">
-    <h2>Skin Scan</h2>
+    <h2>Skin Scan / فحص البشرة</h2>
     <input type="file" accept="image/*" id="imageInput">
-    <canvas id="canvas" hidden></canvas>
     <img id="preview">
+    <canvas id="canvas" hidden></canvas>
     <p id="scanResult"></p>
-    <button onclick="analyzeImage()">تحليل الصورة</button>
+    <button onclick="analyzeImage()">Analyze Image / تحليل الصورة</button>
   </section>
 
   <!-- QUESTIONS -->
@@ -36,16 +36,16 @@
 
   <!-- RESULT -->
   <section id="result" class="screen">
-    <h2>Skin Analysis Result</h2>
+    <h2>Analysis Result / نتيجة التحليل</h2>
     <div id="analysis"></div>
-    <button onclick="showRoutine()">عرض الروتين</button>
+    <button onclick="showRoutine()">View Routine / عرض الروتين</button>
   </section>
 
   <!-- ROUTINE -->
   <section id="routine" class="screen">
-    <h2>Personalized Routine</h2>
+    <h2>Your Routine / روتينك</h2>
     <div id="routineBox"></div>
-    <button onclick="sendWhats()">📲 WhatsApp</button>
+    <button onclick="sendWhats()">📲 Send via WhatsApp</button>
   </section>
 
 </div>
