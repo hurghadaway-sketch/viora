@@ -1,69 +1,52 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VIORA - فحص البشرة المتكامل</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <title>VIORA – AI Skin Scan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
 
-<header>
-<h1>VIORA - فحص البشرة المتكامل</h1>
-</header>
+<div id="app">
 
-<main>
-<h2>رفع أو التقاط صورة للوجه</h2>
-<input type="file" id="faceImage" accept="image/*">
-<br>
-<button onclick="analyzeImage()">تحليل من صورة</button>
-<button onclick="startCamera()">التقاط وتحليل من الكاميرا</button>
+  <!-- شاشة البداية -->
+  <section id="startScreen" class="screen active">
+    <h1>VIORA</h1>
+    <p>AI Skin Scan & Smart Routine</p>
+    <input type="text" id="usernameInput" placeholder="Username / اسم المستخدم" />
+    <button onclick="startScan()">ابدأ الاسكان</button>
+  </section>
 
-<video id="video" width="300" height="300" autoplay style="display:none;"></video>
-<canvas id="canvas" style="display:none;"></canvas>
-<div id="faceMap" class="face-map" style="display:none;"></div>
+  <!-- شاشة الاسكان -->
+  <section id="scanScreen" class="screen">
+    <video id="camera" autoplay playsinline></video>
+    <div class="scan-line"></div>
+    <p class="typing" id="scanText">جاري فحص البشرة...</p>
+  </section>
 
-<div id="questions" style="display:none;">
-  <h2>الأسئلة بعد الفحص</h2>
-  <form id="clientForm">
-    <p>نوع البشرة:</p>
-    <label><input type="radio" name="skinType" value="جافة"> جافة</label>
-    <label><input type="radio" name="skinType" value="دهنية"> دهنية</label>
-    <label><input type="radio" name="skinType" value="مختلطة"> مختلطة</label>
-    <label><input type="radio" name="skinType" value="عادية"> عادية</label>
+  <!-- شاشة الأسئلة -->
+  <section id="questionScreen" class="screen">
+    <h2 id="questionTitle"></h2>
+    <div id="answers"></div>
+  </section>
 
-    <p>هل لديك تصبغات إضافية؟</p>
-    <label><input type="radio" name="pigmentation" value="نعم"> نعم</label>
-    <label><input type="radio" name="pigmentation" value="لا"> لا</label>
+  <!-- شاشة النتيجة -->
+  <section id="resultScreen" class="screen">
+    <h2>Skin Analysis Result</h2>
+    <div id="analysisResult"></div>
+    <button onclick="showRoutine()">عرض الروتين</button>
+  </section>
 
-    <p>هل لديك حبوب إضافية؟</p>
-    <label><input type="radio" name="acne" value="نعم"> نعم</label>
-    <label><input type="radio" name="acne" value="لا"> لا</label>
+  <!-- شاشة الروتين -->
+  <section id="routineScreen" class="screen">
+    <h2>Your Personalized Routine</h2>
+    <div id="routineResult"></div>
+    <button onclick="sendWhatsApp()">📲 Send to WhatsApp</button>
+  </section>
 
-    <p>نوع الحبوب (إن وجدت):</p>
-    <label><input type="checkbox" name="acneType" value="حمراء"> حمراء</label>
-    <label><input type="checkbox" name="acneType" value="بيضاء"> بيضاء</label>
-    <label><input type="checkbox" name="acneType" value="سوداء"> سوداء</label>
-
-    <p>هل لديك هالات سوداء حول العينين؟</p>
-    <label><input type="radio" name="darkCircles" value="نعم"> نعم</label>
-    <label><input type="radio" name="darkCircles" value="لا"> لا</label>
-
-    <p>هل لديك بهتان أو اسمرار؟</p>
-    <label><input type="radio" name="dullness" value="نعم"> نعم</label>
-    <label><input type="radio" name="dullness" value="لا"> لا</label>
-
-    <p>هل لديك حساسية من مواد مثل Retinol أو Cretin؟</p>
-    <label><input type="radio" name="sensitivity" value="نعم"> نعم</label>
-    <label><input type="radio" name="sensitivity" value="لا"> لا</label>
-
-    <button type="button" onclick="submitQuestions()">حفظ الأسئلة وإظهار الروتين</button>
-  </form>
 </div>
-
-<div id="analysis" class="result" style="display:none;"></div>
-<button id="whatsappBtn" style="display:none;" onclick="sendWhatsApp()">إرسال الروتين إلى واتساب</button>
-</main>
 
 <script src="main.js"></script>
 </body>
