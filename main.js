@@ -1,128 +1,136 @@
-let userData = {
-  username: "",
-  skinType: "",
-  acne: "",
-  pigmentation: "",
-  tolerance: "",
-  routineLevel: ""
+let user = {
+  name: "",
+  imageData: null,
+  scan: {},
+  answers: {},
+  routine: ""
 };
 
 const questions = [
-  {
-    q: "What is your skin type? / نوع بشرتك؟",
-    a: ["Oily / دهنية", "Dry / جافة", "Combination / مختلطة", "Sensitive / حساسة"],
-    key: "skinType"
-  },
-  {
-    q: "Do you have acne? / هل تعاني من حبوب؟",
-    a: ["No", "Mild", "Inflamed", "Marks only"],
-    key: "acne"
-  },
-  {
-    q: "Pigmentation level? / درجة التصبغات؟",
-    a: ["Light", "Medium", "Severe"],
-    key: "pigmentation"
-  },
-  {
-    q: "Did your skin react before? / هل بشرتك تتحسس؟",
-    a: ["No", "Yes"],
-    key: "tolerance"
-  }
+  { q:"هل بشرتك تتحسس بسرعة؟", a:["نعم","لا"], key:"sensitive" },
+  { q:"درجة التصبغات؟", a:["خفيفة","متوسطة","عنيدة"], key:"pigmentation" },
+  { q:"هل توجد حبوب نشطة؟", a:["لا","بسيطة","ملتهبة"], key:"acne" }
 ];
 
-let currentQuestion = 0;
+let qIndex = 0;
 
-function showScreen(id) {
-  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
 }
 
-function startScan() {
-  const name = document.getElementById("usernameInput").value.trim();
-  if (!name) {
-    alert("Enter username");
-    return;
+function goToScan(){
+  const n=document.getElementById("username").value.trim();
+  if(!n){ alert("ادخل الاسم"); return }
+  user.name=n;
+  show("scan");
+}
+
+document.getElementById("imageInput").onchange=e=>{
+  const img=document.getElementById("preview");
+  img.src=URL.createObjectURL(e.target.files[0]);
+}
+
+function analyzeImage(){
+  const img=document.getElementById("preview");
+  if(!img.src){ alert("ارفع صورة"); return }
+
+  const canvas=document.getElementById("canvas");
+  const ctx=canvas.getContext("2d");
+  canvas.width=img.naturalWidth;
+  canvas.height=img.naturalHeight;
+  ctx.drawImage(img,0,0);
+
+  const data=ctx.getImageData(0,0,canvas.width,canvas.height).data;
+  let brightness=0, contrast=0;
+
+  for(let i=0;i<data.length;i+=4){
+    const avg=(data[i]+data[i+1]+data[i+2])/3;
+    brightness+=avg;
+    contrast+=Math.abs(avg-128);
   }
-  userData.username = name;
-  showScreen("scanScreen");
 
-  navigator.mediaDevices.getUserMedia({ video: true })
-    .then(stream => {
-      document.getElementById("camera").srcObject = stream;
-      setTimeout(() => {
-        stream.getTracks().forEach(track => track.stop());
-        startQuestions();
-      }, 4000);
-    })
-    .catch(() => alert("Camera permission required"));
+  brightness/=data.length/4;
+  contrast/=data.length/4;
+
+  user.scan = {
+    oily: brightness>150,
+    dull: brightness<110,
+    pigmentation: contrast>50
+  };
+
+  document.getElementById("scanResult").innerHTML =
+   `🔍 نتائج أولية:<br>
+    ${user.scan.oily?"لمعان زائد<br>":""}
+    ${user.scan.dull?"بهتان<br>":""}
+    ${user.scan.pigmentation?"تفاوت لون<br>":""}`;
+
+  show("questions");
+  loadQ();
 }
 
-function startQuestions() {
-  showScreen("questionScreen");
-  loadQuestion();
-}
-
-function loadQuestion() {
-  const q = questions[currentQuestion];
-  document.getElementById("questionTitle").innerText = q.q;
-  const answersDiv = document.getElementById("answers");
-  answersDiv.innerHTML = "";
-
-  q.a.forEach(ans => {
-    const btn = document.createElement("button");
-    btn.innerText = ans;
-    btn.onclick = () => {
-      userData[q.key] = ans;
-      currentQuestion++;
-      if (currentQuestion < questions.length) {
-        loadQuestion();
-      } else {
-        analyzeResult();
-      }
+function loadQ(){
+  const q=questions[qIndex];
+  document.getElementById("qTitle").innerText=q.q;
+  const box=document.getElementById("qAnswers");
+  box.innerHTML="";
+  q.a.forEach(ans=>{
+    const b=document.createElement("button");
+    b.innerText=ans;
+    b.onclick=()=>{
+      user.answers[q.key]=ans;
+      qIndex++;
+      qIndex<questions.length ? loadQ() : finish();
     };
-    answersDiv.appendChild(btn);
+    box.appendChild(b);
   });
 }
 
-function analyzeResult() {
-  let text = `
-  Username: ${userData.username}<br>
-  Skin Type: ${userData.skinType}<br>
-  Acne: ${userData.acne}<br>
-  Pigmentation: ${userData.pigmentation}
-  `;
+function finish(){
+  let txt=`👤 ${user.name}<br>مشكلات:<br>`;
+  if(user.scan.oily) txt+="• دهون زائدة<br>";
+  if(user.scan.pigmentation) txt+="• تصبغات<br>";
+  if(user.answers.acne!=="لا") txt+="• حبوب<br>";
 
-  if (userData.tolerance === "Yes") {
-    userData.routineLevel = "Safe Routine";
-    text += "<br><b>Recommended:</b> Conservative Routine";
-  } else {
-    userData.routineLevel = "Advanced Routine";
-    text += "<br><b>Recommended:</b> Faster Results Routine";
-  }
+  user.routine = (user.answers.sensitive==="نعم")
+    ? "روتين محافظ"
+    : "روتين أسرع بنتائج أعلى";
 
-  document.getElementById("analysisResult").innerHTML = text;
-  showScreen("resultScreen");
+  txt+=`<br><b>${user.routine}</b>`;
+  document.getElementById("analysis").innerHTML=txt;
+  show("result");
 }
 
-function showRoutine() {
-  let routineHTML = `
-  <h3>${userData.routineLevel}</h3>
-  <ul>
-    <li>Phase 1: Hydration (HA + Panthenol)</li>
-    <li>Phase 2: Treatment (Vitamin C / Retinoid)</li>
-    <li>Phase 3: Maintenance (Sunscreen + Moisturizer)</li>
-  </ul>
+function showRoutine(){
+  const r = `
+  <h3>${user.routine}</h3>
+
+  <b>المرحلة 1 – ترطيب</b><br>
+  Hyaluronic Acid + Panthenol<br>
+  Nano Treat HA & V.C<br><br>
+
+  <b>المرحلة 2 – علاج</b><br>
+  Niacinamide / Adapalene<br>
+  Kolagra Whitening / Acretin<br><br>
+
+  <b>المرحلة 3 – صيانة</b><br>
+  Vitamin C + Sunscreen<br>
+  Infinity SPF50+
   `;
-  document.getElementById("routineResult").innerHTML = routineHTML;
-  showScreen("routineScreen");
+  document.getElementById("routineBox").innerHTML=r;
+  show("routine");
 }
 
-function sendWhatsApp() {
+function sendWhats(){
   const msg = `
-VIORA Report
-Username: ${userData.username}
-Routine: ${userData.routineLevel}
-`;
-  const url = `https://wa.me/201063994139?text=${encodeURIComponent(msg)}`;
-  window.open(url, "_blank");
+VIORA REPORT
+Name: ${user.name}
+Routine: ${user.routine}
+Problems:
+${JSON.stringify(user.scan)}
+  `;
+  window.open(
+    "https://wa.me/201063994139?text="+encodeURIComponent(msg),
+    "_blank"
+  );
 }
