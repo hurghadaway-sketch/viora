@@ -1,49 +1,51 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>VIORA – AI Skin Scan</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
 <div id="app">
 
-  <!-- شاشة البداية -->
-  <section id="startScreen" class="screen active">
+  <!-- START -->
+  <section id="start" class="screen active">
     <h1>VIORA</h1>
     <p>AI Skin Scan & Smart Routine</p>
-    <input type="text" id="usernameInput" placeholder="Username / اسم المستخدم" />
-    <button onclick="startScan()">ابدأ الاسكان</button>
+    <input id="username" placeholder="Username / اسم المستخدم">
+    <button onclick="goToScan()">ابدأ الاسكان</button>
   </section>
 
-  <!-- شاشة الاسكان -->
-  <section id="scanScreen" class="screen">
-    <video id="camera" autoplay playsinline></video>
-    <div class="scan-line"></div>
-    <p class="typing" id="scanText">جاري فحص البشرة...</p>
+  <!-- SCAN -->
+  <section id="scan" class="screen">
+    <h2>Skin Scan</h2>
+    <input type="file" accept="image/*" id="imageInput">
+    <canvas id="canvas" hidden></canvas>
+    <img id="preview">
+    <p id="scanResult"></p>
+    <button onclick="analyzeImage()">تحليل الصورة</button>
   </section>
 
-  <!-- شاشة الأسئلة -->
-  <section id="questionScreen" class="screen">
-    <h2 id="questionTitle"></h2>
-    <div id="answers"></div>
+  <!-- QUESTIONS -->
+  <section id="questions" class="screen">
+    <h2 id="qTitle"></h2>
+    <div id="qAnswers"></div>
   </section>
 
-  <!-- شاشة النتيجة -->
-  <section id="resultScreen" class="screen">
+  <!-- RESULT -->
+  <section id="result" class="screen">
     <h2>Skin Analysis Result</h2>
-    <div id="analysisResult"></div>
+    <div id="analysis"></div>
     <button onclick="showRoutine()">عرض الروتين</button>
   </section>
 
-  <!-- شاشة الروتين -->
-  <section id="routineScreen" class="screen">
-    <h2>Your Personalized Routine</h2>
-    <div id="routineResult"></div>
-    <button onclick="sendWhatsApp()">📲 Send to WhatsApp</button>
+  <!-- ROUTINE -->
+  <section id="routine" class="screen">
+    <h2>Personalized Routine</h2>
+    <div id="routineBox"></div>
+    <button onclick="sendWhats()">📲 WhatsApp</button>
   </section>
 
 </div>
