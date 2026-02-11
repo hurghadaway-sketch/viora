@@ -1,32 +1,39 @@
 body {
   margin: 0;
-  font-family: Arial;
+  font-family: Arial, sans-serif;
   background: #0b0f1a;
   color: #fff;
   text-align: center;
 }
 
-.screen { display:none; padding:20px; min-height:100vh }
-.screen.active { display:block }
+.screen {
+  display: none;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.screen.active {
+  display: block;
+}
 
 button {
-  background:#1e90ff;
-  border:none;
-  color:white;
-  padding:12px 20px;
-  border-radius:6px;
-  margin-top:15px;
-  font-size:16px;
+  background: #1e90ff;
+  border: none;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-size: 16px;
+  margin-top: 15px;
 }
 
 input {
-  padding:10px;
-  width:80%;
-  margin-top:15px;
+  padding: 10px;
+  width: 80%;
+  margin-top: 15px;
 }
 
 img {
-  max-width:90%;
-  border-radius:10px;
-  margin-top:15px;
+  max-width: 90%;
+  margin-top: 15px;
+  border-radius: 10px;
 }
